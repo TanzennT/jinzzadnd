@@ -6,6 +6,7 @@ class Game(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, default=1)
     name = models.CharField(max_length=50, default='null')
     setting = models.CharField(max_length=100, default='null')
+    last_response = models.TextField(default="")
 
     def __str__(self):
         return self.name
@@ -28,7 +29,6 @@ class Character(models.Model):
     plot = models.CharField(max_length=500, default='defaultplot')
     stat = models.JSONField(default=list)
     items = models.JSONField(default=dict)
-    last_response = models.TextField()
 
     def __str__(self):
         return self.name

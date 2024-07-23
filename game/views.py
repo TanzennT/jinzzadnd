@@ -25,6 +25,7 @@ def create_character(request, game_id):
         character.hp = character.stat[2] * 2 + 10
         character.save()
         game.name = f"{character.name}'s game"
+        game.last_response = generate_intro(game_id)
         game.save()
         return redirect('game:detail', game_id=game_id)
     return render(request, 'game/create_character.html', {'origins': ORIGINS, 'traits': TRAITS, 'gifts': GIFTS})
@@ -52,12 +53,13 @@ def list(request):
 @login_required
 def detail(request, game_id):
     game = Game.objects.get(id=game_id)
-    user_character = Character.objects.get(game=game)
-    if Character.objects.filter(game=game).count() < 1:
-        return redirect('game:create_character', game_id=game_id)
-    if game.user != request.user:
-        return render(request, 'invalid.html')
-    return render(request, 'game/detail.html', {'game': game, 'character': user_character})
+    try:
+        user_character = Character.objects.get(game=game)
+        if game.user != request.user:
+            return render(request, 'invalid.html')
+        return render(request, 'game/detail.html', {'game': game, 'character': user_character})
+    except Character.DoesNotExist:
+            return redirect('game:create_character', game_id=game_id)
 
 
 @login_required
@@ -72,9 +74,13 @@ def play(request, game_id):
 def send_message(request):
     if request.method == "POST":
         data = json.loads(request.body)
+        game = Game.objects.get(id=data['game_id'])
         print(data)
         response = generate_response(data['message'], data['game_id'])
         print(response)
-        return JsonResponse({"ai_response": "You are getting attacked by wolves!"}, status=200)
+        game.last_response = response
+        game.save()
+        
+        return JsonResponse({"ai_response": response}, status=200)
     else:
         return JsonResponse({'success': False, 'error': 'Invalid request method.'}, status=400)

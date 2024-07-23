@@ -8,7 +8,7 @@
             <p>This is my response</p>
         </div>
         <div id="airesponse">
-            <p>This is AI response</p>
+            <p>{{game.last_response}}</p>
         </div>
         <input id="userInput" type="text" placeholder="Type your message...">
         <button id="sendMessageButton" onclick="sendMessage()">Send</button>
@@ -19,6 +19,7 @@
 <script>
     const userInput = document.getElementById("userInput");
     const aiResponse = document.getElementById("airesponse");
+    const myresponse = document.getElementById("myresponse");
     const sendMessageButton = document.getElementById("sendMessageButton");
 
     async function sendMessage() {
@@ -48,6 +49,7 @@
             if (response.ok) {
                 const data = await response.json();
                 aiResponse.innerHTML = `<p>${data.ai_response}</p>`; 
+                myresponse.innerHTML = `<p>${message}</p>`
             } else {
                 console.error("Error sending message:", response.status);
                 aiResponse.innerHTML = '<p>Error sending message. Please try again.</p>';
@@ -57,6 +59,7 @@
             aiResponse.innerHTML = '<p>Error sending message. Please try again.</p>';
         } finally {
             sendMessageButton.disabled = false;
+
             userInput.value = ""; 
         }
     }
