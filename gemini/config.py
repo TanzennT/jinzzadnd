@@ -1,7 +1,6 @@
 import google.generativeai as genai
 from .tools import *
-
-GOOGLE_AI_KEY = "AIzaSyB__EjVsdE30r0jG6HnjdpcZt1OfUrqVhY"
+from DNDAPP.settings import GOOGLE_AI_KEY
 
 genai.configure(api_key=GOOGLE_AI_KEY)
 
