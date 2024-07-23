@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block body %}
+<h1 class="text-4xl">{{game.name}}</h1>
+
+<div class="flex">
+    <div class="w-3/4 p-4">
+        <div id="myresponse" style="display:none;">
+            <p>This is my response</p>
+        </div>
+        <div id="airesponse">
+            <p>This is AI response</p>
+        </div>
+        <input id="userInput" type="text" placeholder="Type your message...">
+        <button id="sendMessageButton" onclick="sendMessage()">Send</button>
+    </div>
+</div>
+{% endblock body %}
+{% block script %}
+<script>
+    const userInput = document.getElementById("userInput");
+    const aiResponse = document.getElementById("airesponse");
+    const sendMessageButton = document.getElementById("sendMessageButton");
+
+    async function sendMessage() {
+        const message = userInput.value.trim();
+        if (message === "") {
+            return;
+        }
+        document.getElementById("myresponse").style.display = 'block';
+
+        sendMessageButton.disabled = true;
+        aiResponse.innerHTML = '<p>Loading...</p>'; 
+
+        const endpointURL = '{% url "game:send" %}'; 
+        try {
+            const response = await fetch(endpointURL, {
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json",
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                    "message": message,
+                    "game_id": "{{game.id}}",
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                aiResponse.innerHTML = `<p>${data.ai_response}</p>`; 
+            } else {
+                console.error("Error sending message:", response.status);
+                aiResponse.innerHTML = '<p>Error sending message. Please try again.</p>';
+            }
+        } catch (error) {
+            console.error("Error occurred:", error);
+            aiResponse.innerHTML = '<p>Error sending message. Please try again.</p>';
+        } finally {
+            sendMessageButton.disabled = false;
+            userInput.value = ""; 
+        }
+    }
+</script>
+{% endblock script %}

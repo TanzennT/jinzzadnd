@@ -1,8 +1,9 @@
 from django.db import models
-
+from django.contrib.auth.models import User
 # Create your models here.
 
 class Game(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, default=1)
     name = models.CharField(max_length=50, default='null')
     setting = models.CharField(max_length=100, default='null')
 
@@ -12,10 +13,6 @@ class Game(models.Model):
 
 
 class Character(models.Model):
-    ORIGIN_CHOICES = {
-        'dummy' : 'dummy'
-    }
-
     GENDER_CHOICES = {
         'male' : 'male',
         'female' : 'female',
@@ -24,14 +21,17 @@ class Character(models.Model):
 
     name = models.CharField(max_length=50, default='null')
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
-    origin = models.CharField(max_length = 7, choices=ORIGIN_CHOICES, default = 'dummy')
+    hp = models.IntegerField(default=-1)
+    origin = models.CharField(max_length=50)
     gender = models.CharField(max_length = 6, choices = GENDER_CHOICES, default = 'male')
     is_user = models.BooleanField(default=False)
     plot = models.CharField(max_length=500, default='defaultplot')
-    stat = models.JSONField(default=dict)
+    stat = models.JSONField(default=list)
+    items = models.JSONField(default=dict)
+    last_response = models.TextField()
 
     def __str__(self):
-        return '{self.game.name}\s character'
+        return self.name
     
 
 class Log(models.Model):

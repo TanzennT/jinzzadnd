@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% block body %}
+<div>
+    <div class="flex flex-col justify-center items-center min-h-screen">
+        <div class="w-full max-w-lg p-6 space-y-6 rounded-lg shadow-md"> 
+            <h2 class="text-2xl font-bold text-center mb-4">Choose Your Origin</h2>
+            <div class="carousel relative overflow-hidden rounded-lg">
+                <div class="carousel-inner flex items-center justify-between p-2" id="carousel-items">
+                    {% for origin_key, origin_data in origins.items %}
+                        <div class="carousel-item relative w-full">
+                            <div class="bg-white rounded-lg shadow-md p-4">
+                                <h3 class="text-xl font-bold mb-2">{{ origin_data.displayname }}</h3>
+                                <p class="text-gray-700 mb-4">Level: {{ origin_data.level }}</p>
+                                <ul class="list-disc text-gray-700 px-4">
+                                    <li>
+                                        Strength: {{origin_data.stats.0}}
+                                    </li>
+                                    <li>
+                                        Dexterity: {{origin_data.stats.1}}
+                                    </li>
+                                    <li>
+                                        Vigor: {{origin_data.stats.2}}
+                                    </li>
+                                    <li>
+                                        Intelligence: {{origin_data.stats.3}}
+                                    </li>
+                                    <li>
+                                        Faith: {{origin_data.stats.4}}
+                                    </li>
+                                    <li>
+                                        Arcane: {{origin_data.stats.5}}
+                                    </li>
+                                </ul>
+                                <div class="mt-4 flex justify-center">
+                                    <input type="radio" id="origin-{{ origin_key }}" name="origin" value="{{ origin_key }}" class="hidden">
+                                    <button id="prev" class="bg-gray-300 hover:bg-gray-400 text-white font-bold py-2 px-4 rounded-l-lg focus:outline-none focus:shadow-outline" onclick="prevSlide()">Prev</button>
+                                    <label for="origin-{{ origin_key }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Select</label>
+                                    <button id="next" class="bg-gray-300 hover:bg-gray-400 text-white font-bold py-2 px-4 rounded-r-lg focus:outline-none focus:shadow-outline" onclick="nextSlide()">Next</button>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                
+            </div>
+            <div class="flex justify-center">
+                <form method="POST" id="character-form" class="">
+                    {% csrf_token %}
+                    <input type="text" name="name">
+                    <input type="hidden" name="origin" id="selected-origin" value="wandering-knight">
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Create Character</button>
+                </form>
+            </div>
+            
+        </div>
+    </div>
+{% endblock body %}
+
+{% block script %}
+<script>
+    let slideIndex = 0;
+    const items = document.querySelectorAll('.carousel-item');
+    const prevBtn = document.getElementById('prev');
+    const nextBtn = document.getElementById('next');
+    const selectedOrigin = document.getElementById('selected-origin');
+
+    function showSlide(n) {
+        if (n >= items.length) {
+            slideIndex = 0;
+        }
+        if (n < 0) {
+            slideIndex = items.length - 1;
+        }
+        items.forEach(item => item.style.display = 'none');
+        items[slideIndex].style.display = 'block';
+    }
+
+    function nextSlide() {
+        slideIndex++;
+        showSlide(slideIndex);
+    }
+
+    function prevSlide() {
+        slideIndex--;
+        showSlide(slideIndex);
+    }
+
+    showSlide(slideIndex);
+
+    const radioButtons = document.querySelectorAll('input[name="origin"]');
+    radioButtons.forEach(radioButton => {
+        radioButton.addEventListener('change', function() {
+            selectedOrigin.value = this.value;
+        });
+    });
+</script>
+{% endblock script %}

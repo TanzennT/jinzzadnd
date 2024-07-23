@@ -1,0 +1,7 @@
+{% extends 'base.html' %}
+{% block body %}
+<h1 class="text-4xl">{{game.name}}</h1>
+<h1>DESCRIPTION</h1>
+{{character.hp}}
+<a href="{% url 'game:play' game_id=game.id %}">Play</a>
+{% endblock body %}

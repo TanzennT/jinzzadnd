@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% load socialaccount %}
+{% block title %}
+Home
+{% endblock title %}
+{% block body %}
+<div class="flex flex-col items-center justify-center min-h-screen">
+    <div class="text-center font-bold text-8xl">APPNAME</div>
+    <a href="{% provider_login_url 'google' %}">
+        <div class="text-center text-4xl mt-5">Sign in to Start</div>
+    </a>
+</div>
+{% endblock body %}

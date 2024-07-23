@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block body %}
+<div class="flex flex-col items-center justify-center min-h-screen">
+    <div class="text-center text-8xl font-bold">Knockoff D&D</div>
+    <div class="flex flex-row justify-center mt-5">
+        <a href="{% url 'game:list' %}">
+            <h1 class="text-4xl text-center">Load Game</h1>
+        </a>
+        <button onClick="createGame()" class="text-4xl ml-5">Start Game</button>
+    </div>
+</div>
+{% endblock body %}
+{% block script %}
+<script>
+    async function createGame() {
+        const endpointURL = "{% url 'game:create_game' %}"
+        try {
+            const response = await fetch(endpointURL, {
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json",
+                    'X-CSRFToken' : '{{ csrf_token }}',
+                },
+                body: JSON.stringify({}),
+            });
+            if (response.ok){
+                if (response.status == 202) {
+                    window.location.href = "{% url 'game:list' %}"
+                    return
+                }
+                const data = await response.json()
+                console.log(data);
+                console.log(response.status)
+                const gameID = data.gameID;
+                window.location.href = "/game/create/" + gameID;
+            } else {
+                console.error("Error creating game: ", response.status);  
+                console.log(response)
+            }
+        } catch (error) {
+            console.error("Error occured", error);
+        }
+    }
+</script>
+{% endblock script%}

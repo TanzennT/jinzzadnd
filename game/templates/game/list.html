@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block body %}
+<div class="max-w-4xl mx-auto flex flex-col justify-center items-center min-h-screen space-y-40">
+{% for game in games %}
+    <a href="{% url 'game:detail' game_id=game.id %}">
+        <h1 class="text-5xl">
+            {{ game.name }}
+        </h1>
+    </a>
+{% endfor %}
+</div>
+{% endblock body %}
