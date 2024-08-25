@@ -23,12 +23,14 @@ class Character(models.Model):
     name = models.CharField(max_length=50, default='null')
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
     hp = models.IntegerField(default=-1)
+    level = models.IntegerField(default=-1)
     origin = models.CharField(max_length=50)
     gender = models.CharField(max_length = 6, choices = GENDER_CHOICES, default = 'male')
+    equipped = models.JSONField(default=list)
     is_user = models.BooleanField(default=False)
     plot = models.CharField(max_length=500, default='defaultplot')
     stat = models.JSONField(default=list)
-    items = models.JSONField(default=dict)
+    inventory = models.JSONField(default=dict, blank=True)
 
     def __str__(self):
         return self.name
@@ -36,6 +38,10 @@ class Character(models.Model):
 
 class Log(models.Model):
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
-    description = models.CharField(max_length=100)
+    contents = models.JSONField(default=list, blank=True)
     created = models.DateTimeField(auto_now_add=True)
-    
+
+    class Meta:
+        ordering = ['created']
+    def __str__(self):
+        return self.game.name

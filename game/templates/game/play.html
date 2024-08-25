@@ -1,38 +1,98 @@
 {% extends 'base.html' %}
 {% block body %}
-<h1 class="text-4xl">{{game.name}}</h1>
-
-<div class="flex">
-    <div class="w-3/4 p-4">
-        <div id="myresponse" style="display:none;">
-            <p>This is my response</p>
+<div class="flex h-screen">
+    <div class="w-3/4 flex flex-col justify-between">
+        <h1 class="text-4xl">{{game.name}}</h1>
+        <div class="p-4 overflow-y-auto"> 
+            <!-- Chat History -->
+            <div id="chatHistory" class="mb-16"> 
+                {% for log in game.log_set.all %}
+                    {% with outercnt=forloop.counter0 %}
+                    {% for message in log.contents %}
+                        {% if message.role == 'user' and outercnt != 0 %}
+                            <div class="mb-2 p-2 rounded-md bg-gray-100">
+                                <p class="font-bold text-sm">{{ message.role }}:</p>
+                                <p class="text-sm">{{ message.parts.0.text | tidy }}</p>
+                            </div>
+                        {% endif %}
+                        {% if message.role == 'model' %} 
+                            <div class="mb-2 p-2 rounded-md bg-gray-100">
+                                <p class="font-bold text-sm">{{ message.role }}:</p>
+                                <p class="text-sm">{{ message.parts.0.text }}</p>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                    {% endwith %}
+                {% endfor %}
+            </div>
+            
         </div>
-        <div id="airesponse">
-            <p>{{game.last_response}}</p>
+        <div class="flex items-center my-4 w-full relative"> 
+            <input id="userInput" type="text" placeholder="Type your message..." class="flex-grow mr-2 px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+            <button id="sendMessageButton" onclick="sendMessage()" class="px-4 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-700 focus:outline-none focus:shadow-outline">Send</button>
+            <div style="display: none;" id="loading-circle" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"> 
+                <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><style>.spinner_nOfF{animation:spinner_qtyZ 2s cubic-bezier(0.36,.6,.31,1) infinite}.spinner_fVhf{animation-delay:-.5s}.spinner_piVe{animation-delay:-1s}.spinner_MSNs{animation-delay:-1.5s}@keyframes spinner_qtyZ{0%{r:0}25%{r:3px;cx:4px}50%{r:3px;cx:12px}75%{r:3px;cx:20px}100%{r:0;cx:20px}}</style><circle class="spinner_nOfF" cx="4" cy="12" r="3"/><circle class="spinner_nOfF spinner_fVhf" cx="4" cy="12" r="3"/><circle class="spinner_nOfF spinner_piVe" cx="4" cy="12" r="3"/><circle class="spinner_nOfF spinner_MSNs" cx="4" cy="12" r="3"/></svg>
+            </div>
         </div>
-        <input id="userInput" type="text" placeholder="Type your message...">
-        <button id="sendMessageButton" onclick="sendMessage()">Send</button>
+    </div>
+    <div class="w-1/4 flex flex-col p-4">
+        <!-- Character Status -->
+        <div id="characterStatus" class="mt-4">
+            <h2>Character Status</h2>
+            <p>HP: <span id="hp">{{ character.hp }}</span> / {{ character.stat.2 | max }}</p>
+            <p>Level: {{ character.level }}</p>
+            <p>Origin: {{ character.origin }}</p>
+            <p>Gender: {{ character.get_gender_display }}</p>
+            <!-- Add more stats as needed -->
+        </div>
+        <div class="mt-4">
+            <h2>Inventory</h2>
+            <ul class="list-disc" id="inventoryList">
+                {% for item_key, item_data in character.inventory.items %}
+                    <li class="mb-1" id="{{ item_key }}">
+                        {% if item_key in character.equipped %} 
+                            <strong class="font-bold">{{ item_data.displayname }}
+                                {% if character.equipped.0 == item_key %}
+                                    (Equipped at left hand)
+                                {% elif character.equipped.1 == item_key %}
+                                    (Equipped at right hand)
+                                {% elif character.equipped.2 == item_key %}
+                                    (Equipped as armor)
+                                {% endif %}
+                            </strong>
+                        {% else %}
+                            {{ item_data.displayname }}
+                        {% endif %}
+                        <span class="text-gray-500"> - {{ item_data.lore }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
     </div>
 </div>
+
 {% endblock body %}
 {% block script %}
 <script>
     const userInput = document.getElementById("userInput");
-    const aiResponse = document.getElementById("airesponse");
-    const myresponse = document.getElementById("myresponse");
     const sendMessageButton = document.getElementById("sendMessageButton");
-
+    const hpSpan = document.getElementById("hp");
+    const inventoryList = document.getElementById("inventoryList");
+    const chatHistory = document.getElementById("chatHistory");
+    const loadingCircle = document.getElementById("loading-circle")
     async function sendMessage() {
         const message = userInput.value.trim();
         if (message === "") {
-            return;
+            return; // Don't send empty messages
         }
-        document.getElementById("myresponse").style.display = 'block';
+        userInput.value = ""; 
 
-        sendMessageButton.disabled = true;
-        aiResponse.innerHTML = '<p>Loading...</p>'; 
 
-        const endpointURL = '{% url "game:send" %}'; 
+        sendMessageButton.disabled = true; 
+        // Show loading spinner
+        loadingCircle.style.display = "block"; 
+
+        const endpointURL = '{% url "game:send" %}'; // URL to your view
         try {
             const response = await fetch(endpointURL, {
                 method: 'POST',
@@ -42,25 +102,100 @@
                 },
                 body: JSON.stringify({
                     "message": message,
-                    "game_id": "{{game.id}}",
+                    "game_id": {{ game.id }},
+                    "character_id": {{ character.id }}
                 })
             });
 
             if (response.ok) {
                 const data = await response.json();
-                aiResponse.innerHTML = `<p>${data.ai_response}</p>`; 
-                myresponse.innerHTML = `<p>${message}</p>`
+                console.log(data)
+                updateStatus(data)
+                updateChat(data,message)
+                // Update log area with the sent message and AI response
+                // You'll need to add logic here to dynamically append the chat history
+                // to the #chatHistory div
+
+                // Update character status (HP, etc.) if needed
+                // ...
             } else {
                 console.error("Error sending message:", response.status);
-                aiResponse.innerHTML = '<p>Error sending message. Please try again.</p>';
+                // Handle error gracefully (e.g., display a message to the user)
             }
         } catch (error) {
             console.error("Error occurred:", error);
-            aiResponse.innerHTML = '<p>Error sending message. Please try again.</p>';
+            // Handle error gracefully (e.g., display a message to the user)
         } finally {
-            sendMessageButton.disabled = false;
+            sendMessageButton.disabled = false; 
+            loadingCircle.style.display = "none"; // Hide loading spinner
+        }
+    }
+    function updateChat(data, message) {
+        // UPDATE THE CHAT HISTORY
+        const newMessageDiv = document.createElement('div');
+        newMessageDiv.classList.add("mb-2", "p-2", "rounded-md", "bg-gray-100");
 
-            userInput.value = ""; 
+        const roleParagraph = document.createElement('p');
+        roleParagraph.classList.add("font-bold", "text-sm");
+        roleParagraph.textContent = "user";
+        newMessageDiv.appendChild(roleParagraph);
+
+        const textParagraph = document.createElement('p');
+        textParagraph.classList.add("text-sm");
+        textParagraph.textContent = message;
+        newMessageDiv.appendChild(textParagraph);
+
+        chatHistory.appendChild(newMessageDiv);
+
+        const aiMessageDiv = document.createElement('div');
+        aiMessageDiv.classList.add("mb-2", "p-2", "rounded-md", "bg-gray-100");
+
+        const aiRoleParagraph = document.createElement('p');
+        aiRoleParagraph.classList.add("font-bold", "text-sm");
+        aiRoleParagraph.textContent = "model";
+        aiMessageDiv.appendChild(aiRoleParagraph);
+
+        const aiTextParagraph = document.createElement('p');
+        aiTextParagraph.classList.add("text-sm");
+        aiTextParagraph.textContent = data.ai_response;
+        aiMessageDiv.appendChild(aiTextParagraph);
+
+        chatHistory.appendChild(aiMessageDiv);
+    }
+    function updateStatus(data) {
+        // Update HP
+        if (data.hp) {
+            console.log("UPDATE HP")
+            hpSpan.textContent = data.hp; 
+        }
+
+        if (data.inventory) {
+            // Update Inventory
+            console.log("UPDATE INVENTORY")
+            inventoryList.innerHTML = ""; // Clear existing inventory
+            for (const itemKey in data.inventory) {
+                const itemData = data.inventory[itemKey];
+                const listItem = document.createElement("li");
+                listItem.classList.add("mb-1");
+                listItem.id = itemKey; // Assign ID to the list item
+    
+                let itemName = itemData.displayname;
+                if (data.equipped.includes(itemKey)) {
+                    itemName = `<strong class="font-bold">${itemName}`; 
+                    const equippedIndex = data.equipped.indexOf(itemKey);
+                    if (equippedIndex === 0) {
+                        itemName += " (Equipped at left hand)";
+                    } else if (equippedIndex === 1) {
+                        itemName += " (Equipped at right hand)";
+                    } else if (equippedIndex === 2) {
+                        itemName += " (Equipped as armor)";
+                    }
+                    itemName += "</strong>";
+                }
+                listItem.innerHTML = `${itemName} <span class="text-gray-500"> - ${itemData.lore}</span>`;
+                inventoryList.appendChild(listItem);
+            }
+
         }
     }
 </script>

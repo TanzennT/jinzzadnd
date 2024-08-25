@@ -12,7 +12,7 @@ ORIGINS = {
                   },
                   "shield-origin": {
                       "displayname": "Old Wooden Shield",
-                      "lore": "A shield that has a 20%% chance to block 70%% of incoming damage",
+                      "lore": "A shield that has a 20% chance to block 70%% of incoming damage",
                   },
                   "bread-origin": {
                       "displayname": "Moldy Bread",
