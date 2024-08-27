@@ -1,85 +1,107 @@
 {% extends 'base.html' %}
 {% block body %}
-<div class="flex h-screen">
-    <div class="w-3/4 flex flex-col justify-between">
-        <h1 class="text-4xl">{{game.name}}</h1>
-        <div class="p-4 overflow-y-auto"> 
-            <!-- Chat History -->
-            <div id="chatHistory" class="mb-16"> 
-                {% for log in game.log_set.all %}
-                    {% with outercnt=forloop.counter0 %}
-                    {% for message in log.contents %}
-                        {% if message.role == 'user' and outercnt != 0 %}
-                            <div class="mb-2 p-2 rounded-md bg-gray-100">
-                                <p class="font-bold text-sm">{{ message.role }}:</p>
-                                <p class="text-sm">{{ message.parts.0.text | tidy }}</p>
-                            </div>
-                        {% endif %}
-                        {% if message.role == 'model' %} 
-                            <div class="mb-2 p-2 rounded-md bg-gray-100">
-                                <p class="font-bold text-sm">{{ message.role }}:</p>
-                                <p class="text-sm">{{ message.parts.0.text }}</p>
-                            </div>
-                        {% endif %}
-                    {% endfor %}
-                    {% endwith %}
-                {% endfor %}
-            </div>
-            
-        </div>
-        <div class="flex items-center my-4 w-full relative"> 
-            <input id="userInput" type="text" placeholder="Type your message..." class="flex-grow mr-2 px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-            <button id="sendMessageButton" onclick="sendMessage()" class="px-4 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-700 focus:outline-none focus:shadow-outline">Send</button>
-            <div style="display: none;" id="loading-circle" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"> 
-                <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><style>.spinner_nOfF{animation:spinner_qtyZ 2s cubic-bezier(0.36,.6,.31,1) infinite}.spinner_fVhf{animation-delay:-.5s}.spinner_piVe{animation-delay:-1s}.spinner_MSNs{animation-delay:-1.5s}@keyframes spinner_qtyZ{0%{r:0}25%{r:3px;cx:4px}50%{r:3px;cx:12px}75%{r:3px;cx:20px}100%{r:0;cx:20px}}</style><circle class="spinner_nOfF" cx="4" cy="12" r="3"/><circle class="spinner_nOfF spinner_fVhf" cx="4" cy="12" r="3"/><circle class="spinner_nOfF spinner_piVe" cx="4" cy="12" r="3"/><circle class="spinner_nOfF spinner_MSNs" cx="4" cy="12" r="3"/></svg>
-            </div>
-        </div>
-    </div>
-    <div class="w-1/4 flex flex-col p-4">
-        <!-- Character Status -->
-        <div id="characterStatus" class="mt-4">
-            <h2>Character Status</h2>
-            <p>HP: <span id="hp">{{ character.hp }}</span> / {{ character.stat.2 | max }}</p>
-            <p>Level: {{ character.level }}</p>
-            <p>Origin: {{ character.origin }}</p>
-            <p>Gender: {{ character.get_gender_display }}</p>
-            <!-- Add more stats as needed -->
-        </div>
-        <div class="mt-4">
-            <h2>Inventory</h2>
-            <ul class="list-disc" id="inventoryList">
-                {% for item_key, item_data in character.inventory.items %}
-                    <li class="mb-1" id="{{ item_key }}">
-                        {% if item_key in character.equipped %} 
-                            <strong class="font-bold">{{ item_data.displayname }}
-                                {% if character.equipped.0 == item_key %}
-                                    (Equipped at left hand)
-                                {% elif character.equipped.1 == item_key %}
-                                    (Equipped at right hand)
-                                {% elif character.equipped.2 == item_key %}
-                                    (Equipped as armor)
+<div class="h-screen flex flex-col"> 
+    {% include 'navbar.html' %}
+
+    <div class="flex flex-1 overflow-hidden"> 
+        <div class="w-3/4 flex flex-col justify-between px-6 py-4 overflow-y-auto">
+            <h1 class="text-4xl">{{game.name}}</h1>
+            <div class="overflow-y-auto mt-2 border rounded-md p-4">
+
+                <div class=""> 
+                    <!-- Chat History -->
+                    <div id="chatHistory" class="mb-16"> 
+                        {% for log in game.log_set.all %}
+                            {% with outercnt=forloop.counter0 %}
+                            {% for message in log.contents %}
+                                {% if message.role == 'user' and outercnt != 0 %}
+                                    <div class="mb-2 p-2 rounded-md bg-gray-100">
+                                        <p class="font-bold text-sm">{{ message.role }}:</p>
+                                        <p class="text-sm">{{ message.parts.0.text | tidy }}</p>
+                                    </div>
                                 {% endif %}
-                            </strong>
-                        {% else %}
-                            {{ item_data.displayname }}
-                        {% endif %}
-                        <span class="text-gray-500"> - {{ item_data.lore }}</span>
-                    </li>
-                {% endfor %}
-            </ul>
+                                {% if message.role == 'model' %} 
+                                    <div class="mb-2 p-2 rounded-md bg-sky-100"> <p class="font-bold text-sm">{{ message.role }}:</p>
+                                        <p class="text-sm">{{ message.parts.0.text.response | safe }}</p>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                            {% endwith %}
+                        {% endfor %}
+                    </div>
+                    
+                </div>
+            </div>
+            <div class="flex items-center my-4 w-full relative"> 
+                <input id="userInput" type="text" placeholder="Type your message..." class="flex-grow mr-2 px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                <button id="sendMessageButton" onclick="sendMessage()" class="px-4 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-700 focus:outline-none focus:shadow-outline">Send</button>
+                <div style="display: none;" id="loading-circle" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"> 
+                    <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><style>.spinner_nOfF{animation:spinner_qtyZ 2s cubic-bezier(0.36,.6,.31,1) infinite}.spinner_fVhf{animation-delay:-.5s}.spinner_piVe{animation-delay:-1s}.spinner_MSNs{animation-delay:-1.5s}@keyframes spinner_qtyZ{0%{r:0}25%{r:3px;cx:4px}50%{r:3px;cx:12px}75%{r:3px;cx:20px}100%{r:0;cx:20px}}</style><circle class="spinner_nOfF" cx="4" cy="12" r="3"/><circle class="spinner_nOfF spinner_fVhf" cx="4" cy="12" r="3"/><circle class="spinner_nOfF spinner_piVe" cx="4" cy="12" r="3"/><circle class="spinner_nOfF spinner_MSNs" cx="4" cy="12" r="3"/></svg>
+                </div>
+            </div>
+        </div>
+        <div class="w-1/4 flex flex-col p-4 overflow-y-auto">
+            <!-- Character Status -->
+            <div id="characterStatus" class="mt-4">
+                <h2 class="font-bold">Character Status:</h2>
+                <p>HP: <span id="hp">{{ character.hp }}</span> / <span id="maxHp">{{ character.stat.2 | max }}</span></p>
+                <p>Level: <span id="level">{{ character.level }}</span></p>
+                <p>Origin: {{ character.origin }}</p>
+                <p>Stats:</p>
+                <ul class="list-none text-gray-500 px-4" id="statsList">
+                    <li>Strength: <span id="strength">{{character.stat.0}}</span></li>
+                    <li>Dexterity: <span id="dexterity">{{character.stat.1}}</span></li>
+                    <li>Vigor: <span id="vigor">{{character.stat.2}}</span></li>
+                    <li>Intelligence: <span id="intelligence">{{character.stat.3}}</span></li>
+                    <li>Faith: <span id="faith">{{character.stat.4}}</span></li>
+                    <li>Arcane: <span id="arcane">{{character.stat.5}}</span></li>
+                </ul>
+                <!-- Add more stats as needed -->
+            </div>
+            <div class="mt-4">
+                <h2 class="font-bold">Inventory:</h2>
+                <ul class="list-disc" id="inventoryList">
+                    {% for item_key, item_data in character.inventory.items %}
+                        <li class="mb-1" id="{{ item_key }}">
+                            {% if item_key in character.equipped %} 
+                                <strong class="font-bold">{{ item_data.displayname }}
+                                    {% if character.equipped.0 == item_key %}
+                                        (Equipped at left hand)
+                                    {% elif character.equipped.1 == item_key %}
+                                        (Equipped at right hand)
+                                    {% elif character.equipped.2 == item_key %}
+                                        (Equipped as armor)
+                                    {% endif %}
+                                </strong>
+                            {% else %}
+                                {{ item_data.displayname }}
+                            {% endif %}
+                            <span class="text-gray-500"> - {{ item_data.lore }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
         </div>
     </div>
 </div>
-
 {% endblock body %}
 {% block script %}
 <script>
     const userInput = document.getElementById("userInput");
     const sendMessageButton = document.getElementById("sendMessageButton");
     const hpSpan = document.getElementById("hp");
+    const maxHpSpan = document.getElementById("maxHp")
     const inventoryList = document.getElementById("inventoryList");
     const chatHistory = document.getElementById("chatHistory");
     const loadingCircle = document.getElementById("loading-circle")
+    const levelSpan = document.getElementById("level");
+    const strengthSpan = document.getElementById("strength");
+    const dexteritySpan = document.getElementById("dexterity");
+    const vigorSpan = document.getElementById("vigor");
+    const intelligenceSpan = document.getElementById("intelligence");
+    const faithSpan = document.getElementById("faith");
+    const arcaneSpan = document.getElementById("arcane");
+
     async function sendMessage() {
         const message = userInput.value.trim();
         if (message === "") {
@@ -148,7 +170,7 @@
         chatHistory.appendChild(newMessageDiv);
 
         const aiMessageDiv = document.createElement('div');
-        aiMessageDiv.classList.add("mb-2", "p-2", "rounded-md", "bg-gray-100");
+        aiMessageDiv.classList.add("mb-2", "p-2", "rounded-md", "bg-sky-100");
 
         const aiRoleParagraph = document.createElement('p');
         aiRoleParagraph.classList.add("font-bold", "text-sm");
@@ -156,17 +178,36 @@
         aiMessageDiv.appendChild(aiRoleParagraph);
 
         const aiTextParagraph = document.createElement('p');
-        aiTextParagraph.classList.add("text-sm");
-        aiTextParagraph.textContent = data.ai_response;
+        aiTextParagraph.classList.add("text-base");
+        aiTextParagraph.innerHTML = data.ai_response;
         aiMessageDiv.appendChild(aiTextParagraph);
 
         chatHistory.appendChild(aiMessageDiv);
+
+        // Scroll to bottom
+        chatHistory.scrollTop = chatHistory.scrollHeight; 
     }
     function updateStatus(data) {
         // Update HP
         if (data.hp) {
             console.log("UPDATE HP")
             hpSpan.textContent = data.hp; 
+        }
+
+        if (data.level) {
+            // update level
+            levelSpan.textContent = data.level;
+        }
+
+        if (data.stat) {
+            // update stat
+            maxHpSpan.textContent = data.stat[2] * 2 + 10;
+            strengthSpan.textContent = data.stat[0];
+            dexteritySpan.textContent = data.stat[1];
+            vigorSpan.textContent = data.stat[2];
+            intelligenceSpan.textContent = data.stat[3];
+            faithSpan.textContent = data.stat[4];
+            arcaneSpan.textContent = data.stat[5];
         }
 
         if (data.inventory) {
@@ -198,5 +239,16 @@
 
         }
     }
+    document.getElementById("userInput").addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            sendMessage();
+        }
+    });
+    // Scroll to bottom when page loads
+    chatHistory.scrollTop = chatHistory.scrollHeight; 
+    console.log(chatHistory.scrollTop)
+    console.log(chatHistory.scrollHeight)
+
+
 </script>
 {% endblock script %}

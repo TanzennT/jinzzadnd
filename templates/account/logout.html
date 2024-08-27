@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load allauth %}
+{% block body %}
+<div class="flex flex-col items-center justify-center min-h-screen">
+    <div class="text-center font-bold text-8xl">KNOCKOFF DND</div>
+
+    <p class="text-2xl mb-6">Are you sure you want to sign out?</p> <div class="flex justify-center">
+    <div class="flex justify-center">
+    {% url 'account_logout' as action_url %}
+    {% element form method="post" action=action_url no_visible_fields=True %}
+        {% slot body %}
+            {% csrf_token %}
+            {{ redirect_field }}
+        {% endslot %}
+        {% slot actions %}
+        <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded focus:outline-none focus:shadow-outline text-xl">
+        {% trans 'Sign Out' %}
+        </button>
+        {% endslot %}
+    {% endelement %}
+</div>
+{% endblock body %}

@@ -9,6 +9,7 @@ from django.template.defaulttags import register
 
 @register.filter(name='max')
 def max(vigor): 
+    # return vigor
     vigor = int(vigor)
     return vigor * 2 + 10
 
@@ -58,7 +59,7 @@ def create_game(request):
         if Game.objects.filter(user=request.user).count() >= 3:
             return JsonResponse({"message": "User already has 3 games."}, status=202)
         game = Game.objects.create(
-            name = "Default_Game_Name",
+            name = "Empty Game",
             setting = "Default_Setting",
             user = request.user
         )
@@ -81,7 +82,7 @@ def detail(request, game_id):
             return render(request, 'invalid.html')
         return render(request, 'game/detail.html', {'game': game, 'character': user_character})
     except Character.DoesNotExist:
-            return redirect('game:create_character', game_id=game_id)
+        return redirect('game:create_character', game_id=game_id)
 
 
 @login_required
@@ -115,8 +116,27 @@ def send_message(request):
             context["equipped"] = character.equipped
         if status.get("hp") is not None:
             character.hp = status["hp"]
+            context["hp"] = character.hp
         if status.get("stat") is not None:
             character.stat = status['stat']
+            context["stat"] = character.stat
+        if status.get("level") is not None:
+            character.level = status['level']
+            context["level"] = character.level
+        character.save()
         return JsonResponse(context, status=200)
     else:
         return JsonResponse({'success': False, 'error': 'Invalid request method.'}, status=400)
+    
+@login_required
+def delete_game(request):
+    if request.method == 'POST':
+        game_id = request.GET.get('game_id')
+        try:
+            game = Game.objects.get(pk=game_id)
+            game.delete()
+            return JsonResponse({'success': True})
+        except Game.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'game not found.'})
+    else:
+        return JsonResponse({'success': False, 'error': 'Invalid request method.'})

@@ -77,10 +77,11 @@ Current User Character Status:
 You should prompt user to take the next action.
 
 OUTPUT FORMAT:
-{{'response' : YOUR RESPONSE GOES HERE, 'user_status': {{'hp': CHARACTER'S CHANGED HP, 'level': USER'S CHANGED LEVEL, 'inventory': USER'S CHANGED INVENTORY, 'stat': USER'S CHANGED STAT, 'equipped': USER'S EQUIPPED ITEMS}}}}
+{{'response' : YOUR RESPONSE GOES HERE, HTML FORMATTED, 'user_status': {{'hp': CHARACTER'S CHANGED HP, 'level': USER'S CHANGED LEVEL, 'inventory': USER'S CHANGED INVENTORY, 'stat': USER'S CHANGED STAT, 'equipped': USER'S EQUIPPED ITEMS}}}}
 **If there is no change in user_status, you don't need to include some of the fields. For example, if no status changed except hp, user_status would be {{'hp':10}}
 - Decrease hp whenever you think you should
 - 'inventory': should reflect the user's complete inventory whenever user consumes or gains an item. 
 - 'inventory' and 'equipped' goes as a set: whenever the inventory OR equipped item changes, please include both keys in the user_status. Both would be returned, or none of it will be returned. 
 - 'equipped' should be the item_key data in the inventory, not the display name.
+- When user's level increase, please increase their stat as well, according to their origin, with maximum of 3 stat points being increased.
 """

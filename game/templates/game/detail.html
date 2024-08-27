@@ -1,7 +1,92 @@
 {% extends 'base.html' %}
 {% block body %}
-<h1 class="text-4xl">{{game.name}}</h1>
-<h1>DESCRIPTION</h1>
-{{character.hp}}
-<a href="{% url 'game:play' game_id=game.id %}">Play</a>
+<div class="h-screen flex flex-col">
+    {% include 'navbar.html' %}
+    <div class="flex flex-1">
+                
+
+        <div class="flex flex-col items-center justify-center w-full">
+            <h1 class="text-4xl font-bold mb-4">{{ game.name }}</h1>
+
+            <div class="bg-white py-6 px-10 rounded-lg shadow-md w-full max-w-lg">
+                <!--
+                <div class="mb-4">
+                    <h2 class="text-xl font-semibold mb-2">Description</h2>
+                    <p class="text-gray-700">{{ game.description }}</p>
+                </div>
+                -->
+
+                <div class="mb-4">
+                    <h2 class="text-xl font-semibold mb-2">Character</h2>
+                    <ul class="list-disc">
+                        <li>Name: {{ character.name }}</li>
+                        <li>HP: {{ character.hp }} / {{ character.stat.2 | max }}</li>
+                        <li>Level: {{ character.level }}</li>
+                        <li>Origin: {{ character.origin }}</li>
+                        <li>Stats:</li>
+                        <ul class="list-disc text-gray-500 px-4">
+                            <li>Strength: {{character.stat.0}}</li>
+                            <li>Dexterity: {{character.stat.1}}</li>
+                            <li>Vigor: {{character.stat.2}}</li>
+                            <li>Intelligence: {{character.stat.3}}</li>
+                            <li>Faith: {{character.stat.4}}</li>
+                            <li>Arcane: {{character.stat.5}}</li>
+                        </ul>
+                        <!-- Add more character details as needed -->
+                    </ul>
+                </div>
+
+                <div class="mb-4">
+                    <h2 class="text-xl font-semibold mb-2">Inventory</h2>
+                    <ul class="list-disc">
+                        {% for item_key, item_data in character.inventory.items %}
+                            <li class="mb-1">
+                                {{ item_data.displayname }}
+                                <span class="text-gray-500"> - {{ item_data.lore }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <div class="flex justify-between">
+                    <a href="{% url 'game:list' %}" class="bg-blue-500 hover:bg-blue-700 text-white text-sm py-2 px-2 rounded focus:outline-none focus:shadow-outline **flex items-center justify-center**">Back to List</a>
+                    <a href="{% url 'game:play' game.id %}" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Start Game</a>
+                    <button onclick="deleteGame()" class="bg-red-500 hover:bg-red-700 text-white text-sm py-1 px-2 rounded focus:outline-none focus:shadow-outline">Delete Game</a>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+</div>
 {% endblock body %}
+
+{% block script %}
+<script>
+    async function deleteGame() {
+        const gameId = window.location.pathname.split('/')[3]; 
+        console.log(gameId)
+        const endpointURL = `{% url 'game:delete' %}?game_id=${gameId}`;
+
+        if (confirm("Are you sure you want to delete this game? You can't revert this action.")) {
+            try {
+                const response = await fetch(endpointURL, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": "{{ csrf_token }}",
+                    },
+                });
+                if (response.ok) {
+                    window.location.href = "{% url 'game:list' %}"; 
+                    alert("Game deleted successfully!");
+                } else {
+                    console.error("Error deleting game:", response.status);
+                    console.log(response);
+                }
+            } catch (error) {
+                console.error("Error occurred:", error);
+            }
+        }
+    }
+</script>
+{% endblock script %}

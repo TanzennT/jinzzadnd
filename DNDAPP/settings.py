@@ -137,3 +137,17 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGIN_REDIRECT_URL = '/'
+LOGIN_URL = '/accounts/google/login/'
+
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'APP': {
+            'client_id': os.environ.get("GOOGLE_OAUTH_CLIENT_ID"),
+            'secret': os.environ.get("GOOGLE_OAUTH_SECRET"),
+            'key': '',
+        }
+    }
+}
