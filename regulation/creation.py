@@ -12,7 +12,7 @@ ORIGINS = {
                   },
                   "shield-origin": {
                       "displayname": "Old Wooden Shield",
-                      "lore": "A shield that has a 20% chance to block 70%% of incoming damage",
+                      "lore": "A shield that has a 20% chance to block 70% of incoming damage",
                   },
                   "bread-origin": {
                       "displayname": "Moldy Bread",
@@ -33,11 +33,11 @@ ORIGINS = {
                   },
                   "sidedagger-origin": {
                       "displayname": "Castillon Dagger",
-                      "lore": "A side armament that has a 50%% chance to perform a followup attack when main weapon is used, dealing 4 damage",
+                      "lore": "A side armament that has a 50% chance to perform a followup attack when main weapon is used, dealing 4 damage",
                   },
                   "turnshoe-origin": {
                       "displayname": "Turnshoes",
-                      "lore": "Provides the wearer 2%% chance to dodge incoming damage.",
+                      "lore": "Provides the wearer 2% chance to dodge incoming damage.",
                   },
                   "smokebomb-origin": {
                       "displayname": "Smoke Bomb",
@@ -81,11 +81,11 @@ ORIGINS = {
                   },
                   "smallheal-origin": {
                       "displayname": "Minor Heal",
-                      "lore": "A miracle that is usable 3 times a day. Heals 20%% of selected target's max hp. Cannot be casted without a spell catalyst.",
+                      "lore": "A miracle that is usable 3 times a day. Heals 20% of selected target's max hp. Cannot be casted without a spell catalyst.",
                   },
                   "skillendeure-origin": {
                       "displayname": "Combat Art: Endure",
-                      "lore": "Mitigates 50%% of encoming attack. Absorbes all damage that allies receive for 1 turn.",
+                      "lore": "Mitigates 50% of encoming attack. Absorbes all damage that allies receive for 1 turn.",
                   },
                   }
                 },
@@ -97,12 +97,12 @@ ORIGINS = {
                 "healinglight-origin":
                   {
                       "displayname": "Healing Light",
-                      "lore": "A miracle that is usable 2 times a day. Heals 30%% of all allies' max hp. Spell uses scale with catalyst power (30%%)",
+                      "lore": "A miracle that is usable 2 times a day. Heals 30% of all allies' max hp. Spell uses scale with catalyst power (30%)",
                       
                   },
                   "catch-flame-origin": {
                       "displayname": "Flicker Flame",
-                      "lore": "A close range offensive miracle that is usable indefinitely. Deals 2 flat damage to a selected enemy. Can be casted without a spell catalyst. Damage scales with catalyst power. (50%%)",
+                      "lore": "A close range offensive miracle that is usable indefinitely. Deals 2 flat damage to a selected enemy. Can be casted without a spell catalyst. Damage scales with catalyst power. (50%)",
                   },
                   "clarity-origin": {
                       "displayname": "Light of Clarity",
@@ -110,11 +110,11 @@ ORIGINS = {
                   },
                   "mace-origin": {
                       "displayname": "Flanged Mace",
-                      "lore": "A weapon that deals 4 damage. Ignores 40%% of enemy's armor rating.",
+                      "lore": "A weapon that deals 4 damage. Ignores 40% of enemy's armor rating.",
                   },
                   "buckler-origin": {
                       "displayname": "Buckler",
-                      "lore": "A small shield that has a 5%% chance to parry an incoming attack, negating the damage and returning it to the attacker.",
+                      "lore": "A small shield that has a 5% chance to parry an incoming attack, negating the damage and returning it to the attacker.",
                   },
                   }
                 },
