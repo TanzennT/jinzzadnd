@@ -99,8 +99,8 @@ WSGI_APPLICATION = 'DNDAPP.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgresDND',
-        'USER': "postgres",
+        'NAME': 'dnddb',
+        'USER': "DrEstus",
         'PASSWORD': os.environ.get("DB_PASSWORD"),
         'HOST': os.environ.get("DB_HOST"),
         'PORT': '5432',
